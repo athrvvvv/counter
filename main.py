@@ -6,7 +6,7 @@ import threading
 app = Flask(__name__)
 CORS(app)
 
-lock = threading.Lock()  # to avoid race conditions on file write
+lock = threading.Lock()
 json_file = "count.json"
 
 def read_count():
@@ -21,6 +21,10 @@ def write_count(count):
     with lock:
         with open(json_file, "w") as f:
             json.dump({"count": count}, f)
+
+@app.route("/")
+def home():
+    return "✅ Ringtone counter backend is running!"
 
 @app.route("/count", methods=["GET"])
 def get_count():
