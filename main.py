@@ -26,10 +26,14 @@ def write_count(count):
 def home():
     return "✅ Ringtone counter backend is running!"
 
-@app.route("/count", methods=["GET"])
+@app.route('/count', methods=['GET'])
 def get_count():
-    count = read_count()
-    return jsonify({"count": count})
+    try:
+        with open('count.json', 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/increment", methods=["POST"])
 def increment():
