@@ -1,31 +1,34 @@
-from flask import Flask, jsonify
-import json
-import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
-COUNT_FILE = "counter_backup.json"
+CORS(app)  # allow cross-origin requests if needed
 
-def read_count():
-    if not os.path.exists(COUNT_FILE):
-        return 0
-    with open(COUNT_FILE, "r") as f:
-        data = json.load(f)
-        return data.get("count", 0)
-
-def write_count(count):
-    with open(COUNT_FILE, "w") as f:
-        json.dump({"count": count}, f)
-
-@app.route("/update_count", methods=["POST"])
-def update_count():
-    # Just increment and return count, no Telegram call here
-    count = read_count() + 1
-    write_count(count)
-    return jsonify({"count": count})
+# In-memory count variable (for demo only; reset on server restart)
+count = 0
 
 @app.route("/")
 def home():
     return {"status": "Ringtone Counter API running"}
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+@app.route('/count', methods=['GET', 'POST'])
+def count_route():
+    global count
+    if request.method == 'GET':
+        return jsonify({"count": count})
+
+    if request.method == 'POST':
+        data = request.get_json()
+        if not data or 'count' not in data:
+            return jsonify({"error": "Missing 'count' in JSON body"}), 400
+
+        try:
+            new_count = int(data['count'])
+        except:
+            return jsonify({"error": "'count' must be an integer"}), 400
+
+        count = new_count
+        return jsonify({"count": count})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
