@@ -11,6 +11,10 @@ CHAT_ID = "6264741586"
 
 bot = Bot(token=BOT_TOKEN)
 
+@app.route("/")
+def home():
+    return {"status": "Ringtone Counter API running"}
+
 def read_count():
     if not os.path.exists(COUNT_FILE):
         return 0
